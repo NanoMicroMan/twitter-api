@@ -1,4 +1,4 @@
-package com.playground.twitter.model;
+package com.playground.twitter.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +18,6 @@ public class User {
     private final Set<String> follows = new HashSet<>();
 
     public void addFollow(final String nickFollow) {
-        follows.add(nickName);
+        follows.add(nickFollow);
     }
 }

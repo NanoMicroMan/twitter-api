@@ -1,7 +1,7 @@
-package com.playground.twitter.service.impl;
+package com.playground.twitter.services.impl;
 
-import com.playground.twitter.service.IDataStore;
-import com.playground.twitter.model.User;
+import com.playground.twitter.services.IDataStore;
+import com.playground.twitter.models.User;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -50,7 +50,12 @@ public class DataStore implements IDataStore {
         return userMap.containsKey(normalizeKey(nickName));
     }
 
+    @Override
+    public Collection<String> getFollowers(String nickName) {
+        return followersMap.get(normalizeKey(nickName));
+    }
+
     private String normalizeKey(final String nickName) {
-        return nickName.toUpperCase();
+        return nickName.toLowerCase();
     }
 }

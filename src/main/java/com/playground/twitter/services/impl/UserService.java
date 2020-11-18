@@ -1,10 +1,10 @@
-package com.playground.twitter.service.impl;
+package com.playground.twitter.services.impl;
 
 import com.playground.twitter.errors.NickNameExistsError;
 import com.playground.twitter.errors.UserNotFound;
-import com.playground.twitter.model.User;
-import com.playground.twitter.service.IDataStore;
-import com.playground.twitter.service.IUserService;
+import com.playground.twitter.models.User;
+import com.playground.twitter.services.IDataStore;
+import com.playground.twitter.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collection;
@@ -48,7 +48,13 @@ public class UserService implements IUserService {
         final User updUser = getUser(nickFollower);
         updUser.addFollow(nickFollow);
         dataStore.putUser(updUser);
+        dataStore.addFollower(nickFollow, nickFollower);
         return updUser;
+    }
+
+    @Override
+    public Collection<String> getFollowers(String nickName) {
+        return dataStore.getFollowers(nickName);
     }
 
     private User getUser(final String nickName) {

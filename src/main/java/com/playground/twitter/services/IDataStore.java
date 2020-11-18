@@ -1,6 +1,6 @@
-package com.playground.twitter.service;
+package com.playground.twitter.services;
 
-import com.playground.twitter.model.User;
+import com.playground.twitter.models.User;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -18,4 +18,6 @@ public interface IDataStore {
     void clearAll();
 
     boolean exists(String nickName);
+
+    Collection<String> getFollowers(String nickName);
 }
