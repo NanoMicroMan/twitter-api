@@ -4,8 +4,9 @@ import com.playground.twitter.models.User;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
-@Service
 public interface IDataStore {
     User getUser(String nick);
 
@@ -19,7 +20,7 @@ public interface IDataStore {
 
     boolean exists(String nickName);
 
-    Collection<String> getFollowers(String nickName);
+    HashSet<String> getFollowers(String nickName);
 
     void updateUser(User updUser);
 }

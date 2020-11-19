@@ -1,36 +1,32 @@
 package com.playground.twitter;
 
+import com.playground.twitter.domain.UserService;
 import com.playground.twitter.errors.NickNameExistsError;
 import com.playground.twitter.errors.UserNotFound;
 import com.playground.twitter.services.IDataStore;
 import com.playground.twitter.models.User;
-import com.playground.twitter.services.IUserService;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith(SpringExtension.class)
-@Import(TestConfig.class)
 class UserServiceTest {
 
 	public static final User USER1 = new User("1", "Uno");
 	public static final User USER2 = User.builder().nickName("Pepe").name("Jose Jose").build();
 
 	@Autowired
-	private IUserService userService;
+	private UserService userService;
 
 	@Autowired
 	IDataStore dataStore;
@@ -43,6 +39,7 @@ class UserServiceTest {
 		dataStore.addUser(USER2);
 	}
 
+	@SneakyThrows
 	@Test
 	void registerUser() {
 		final User newUser = new User("Test", "Test User");
@@ -59,7 +56,7 @@ class UserServiceTest {
 	}
 
 	@Test
-	void updateRealName() {
+	void updateRealName() throws UserNotFound {
 		final String UPDATED_NAME = "Updated Name";
 		userService.updateUserName(USER1.getNickName(), UPDATED_NAME);
 		final User registeredUser = dataStore.getUser(USER1.getNickName());
@@ -68,12 +65,30 @@ class UserServiceTest {
 	}
 
 	@Test
-	void addFollow() {
-		userService.addFollow(USER1.getNickName(), USER2.getNickName());
-		final User user = dataStore.getUser(USER1.getNickName());
+	void getFollowers() throws UserNotFound {
+		dataStore.addFollower(USER1.getNickName(), USER2.getNickName());
+		final Collection<String> res = userService.getFollowers(USER1.getNickName());
+		Set<String> expected = new HashSet<>(Arrays.asList(USER2.getNickName().toLowerCase()));
+		assertEquals(expected, res);
+	}
+
+	@Test
+	void getFollowersValidUserEmpty() throws UserNotFound {
+		final Collection<String> res = userService.getFollowers(USER1.getNickName());
+		assertEquals(Collections.EMPTY_SET, res);
+	}
+
+	@Test
+	void getFollowersUserNotFound() {
+		assertThrows(UserNotFound.class, () -> userService.getFollowers("Invalid Nick"));
+	}
+
+	@Test
+	void addFollow() throws UserNotFound {
+		final User user = userService.addFollow(USER1.getNickName(), USER2.getNickName());
 		assertNotNull(user);
 		Set<String> expected = new HashSet<>(Arrays.asList(USER2.getNickName()));
-		assertEquals(expected, USER1.getFollows());
+		assertEquals(expected, user.getFollows());
 
 		expected = new HashSet<>(Arrays.asList(USER1.getNickName()));
 		final Collection<String> followers = userService.getFollowers(USER2.getNickName());
@@ -82,7 +97,7 @@ class UserServiceTest {
 
 	@Test
 	void addFollow_FollowerNotFound() {
-		assertThrows(UserNotFound.class, () -> userService.addFollow("notFound", USER2.getNickName()));
+		assertThrows(UserNotFound.class, () -> userService.addFollow("Invalid Nick", USER2.getNickName()));
 	}
 
 	@Test
@@ -98,7 +113,7 @@ class UserServiceTest {
 	}
 
 	@Test
-	void getOne() {
+	void getOne() throws UserNotFound {
 		final User one = userService.getUserByNick(USER1.getNickName());
 		assertNotNull(one);
 		assertEquals(USER1, one);

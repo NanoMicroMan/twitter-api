@@ -1,9 +1,9 @@
 package com.playground.twitter.controllers;
 
+import com.playground.twitter.domain.UserService;
 import com.playground.twitter.errors.NickNameExistsError;
 import com.playground.twitter.errors.UserNotFound;
 import com.playground.twitter.models.User;
-import com.playground.twitter.services.IUserService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,7 +15,7 @@ import java.util.Collection;
 @AllArgsConstructor
 public class UserController {
     @Autowired
-    IUserService userService;
+    UserService userService;
     
     @GetMapping("/users")
     public Collection<User> all(){
@@ -23,25 +23,32 @@ public class UserController {
     }
 
     @GetMapping("/user/{nick}")
-    public User one(@PathVariable final String nick) {
+    public User one(@PathVariable final String nick) throws UserNotFound {
         return userService.getUserByNick(nick);
     }
     
     @PostMapping("/user")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public User register(final User user) throws NickNameExistsError {
+    public User register(@RequestBody final User user) throws NickNameExistsError {
         return userService.registerUser(user);
     }
     
-    @PatchMapping("/user")
+    @PatchMapping("/user/{nick}")
     @ResponseStatus(code = HttpStatus.ACCEPTED)
-    public User updateName(final String nickName, final String name) throws UserNotFound {
-        return userService.updateUserName(nickName, name);
+    public User updateName(@PathVariable final String nick, final String name) throws UserNotFound {
+        return userService.updateUserName(nick, name);
     }
 
-    @PutMapping("/user")
+    @PutMapping("/user/{nick}")
     @ResponseStatus(code = HttpStatus.ACCEPTED)
-    public User addFollow(final String nickFollower, final String nickFollow) throws UserNotFound {
-        return userService.addFollow(nickFollower, nickFollow);
+    public User addFollow(@PathVariable final String nick, final String follow) throws UserNotFound {
+        return userService.addFollow(nick, follow);
+    }
+
+
+    @GetMapping("/user/{nick}/followers")
+    @ResponseStatus(code = HttpStatus.ACCEPTED)
+    public Collection<String> followers(@PathVariable final String nick) throws UserNotFound {
+        return userService.getFollowers(nick);
     }
 }
