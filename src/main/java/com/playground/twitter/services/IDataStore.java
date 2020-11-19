@@ -9,7 +9,7 @@ import java.util.Collection;
 public interface IDataStore {
     User getUser(String nick);
 
-    void putUser(User user);
+    void addUser(User user);
 
     void addFollower(String nick, String nickFollower);
 
@@ -20,4 +20,6 @@ public interface IDataStore {
     boolean exists(String nickName);
 
     Collection<String> getFollowers(String nickName);
+
+    void updateUser(User updUser);
 }

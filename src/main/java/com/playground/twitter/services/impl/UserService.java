@@ -5,38 +5,42 @@ import com.playground.twitter.errors.UserNotFound;
 import com.playground.twitter.models.User;
 import com.playground.twitter.services.IDataStore;
 import com.playground.twitter.services.IUserService;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 
+@Service
+@NoArgsConstructor
 public class UserService implements IUserService {
     @Autowired
     IDataStore dataStore;
 
     @Override
-    public Collection<User> all() {
+    public Collection<User> getAllUsers() {
         return dataStore.getUsers();
     }
 
     @Override
-    public User one(final String nick) {
+    public User getUserByNick(final String nick) {
         return dataStore.getUser(nick);
     }
 
     @Override
-    public User register(final User user) throws NickNameExistsError {
+    public User registerUser(final User user) throws NickNameExistsError {
         if (dataStore.exists(user.getNickName())) {
             throw new NickNameExistsError();
         }
-        dataStore.putUser(user);
+        dataStore.addUser(user);
         return dataStore.getUser(user.getNickName());
     }
 
     @Override
-    public User updateName(final String nickName, final String name) throws UserNotFound {
+    public User updateUserName(final String nickName, final String name) throws UserNotFound {
         final User updUser = getUser(nickName);
         updUser.setName(name);
-        dataStore.putUser(updUser);
+        dataStore.updateUser(updUser);
         return updUser;
     }
 
@@ -47,13 +51,13 @@ public class UserService implements IUserService {
         }
         final User updUser = getUser(nickFollower);
         updUser.addFollow(nickFollow);
-        dataStore.putUser(updUser);
+        dataStore.updateUser(updUser);
         dataStore.addFollower(nickFollow, nickFollower);
         return updUser;
     }
 
     @Override
-    public Collection<String> getFollowers(String nickName) {
+    public Collection<String> getFollowers(final String nickName) {
         return dataStore.getFollowers(nickName);
     }
 

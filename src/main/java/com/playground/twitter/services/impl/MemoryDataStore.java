@@ -9,10 +9,10 @@ import java.util.*;
 
 @NoArgsConstructor
 @Service
-public class DataStore implements IDataStore {
+public class MemoryDataStore implements IDataStore {
 
-    private Map<String, User> userMap = new HashMap<>();
-    private Map<String, Set<String>> followersMap = new HashMap<>();
+    private final Map<String, User> userMap = new HashMap<>();
+    private final Map<String, Set<String>> followersMap = new HashMap<>();
 
     @Override
     public User getUser(final String nickName) {
@@ -20,7 +20,7 @@ public class DataStore implements IDataStore {
     }
 
     @Override
-    public void putUser(final User user) {
+    public void addUser(final User user) {
         userMap.put(normalizeKey(user.getNickName()), user);
     }
 
@@ -51,8 +51,13 @@ public class DataStore implements IDataStore {
     }
 
     @Override
-    public Collection<String> getFollowers(String nickName) {
+    public Collection<String> getFollowers(final String nickName) {
         return followersMap.get(normalizeKey(nickName));
+    }
+
+    @Override
+    public void updateUser(User updUser) {
+        //object are updated in memory, no need to do anything else
     }
 
     private String normalizeKey(final String nickName) {

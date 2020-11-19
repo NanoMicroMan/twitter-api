@@ -1,10 +1,10 @@
 package com.playground.twitter;
 
 import com.playground.twitter.errors.NickNameExistsError;
+import com.playground.twitter.errors.UserNotFound;
 import com.playground.twitter.services.IDataStore;
 import com.playground.twitter.models.User;
 import com.playground.twitter.services.IUserService;
-import com.playground.twitter.services.impl.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith(SpringExtension.class)
 @Import(TestConfig.class)
-class TwitterApplicationTests {
+class UserServiceTest {
 
 	public static final User USER1 = new User("1", "Uno");
 	public static final User USER2 = User.builder().nickName("Pepe").name("Jose Jose").build();
@@ -39,14 +39,14 @@ class TwitterApplicationTests {
 	private void init() {
 		assertNotNull(userService);
 		dataStore.clearAll();
-		dataStore.putUser(USER1);
-		dataStore.putUser(USER2);
+		dataStore.addUser(USER1);
+		dataStore.addUser(USER2);
 	}
 
 	@Test
 	void registerUser() {
 		final User newUser = new User("Test", "Test User");
-		userService.register(newUser);
+		userService.registerUser(newUser);
 		final User registeredUser = dataStore.getUser(newUser.getNickName());
 		assertNotNull(registeredUser);
 		assertEquals(newUser, registeredUser);
@@ -55,13 +55,13 @@ class TwitterApplicationTests {
 	@Test
 	void failToRegisterUser() {
 		final User newUser = new User(USER1.getNickName(), "Test User");
-		assertThrows(NickNameExistsError.class, () -> userService.register(newUser));
+		assertThrows(NickNameExistsError.class, () -> userService.registerUser(newUser));
 	}
 
 	@Test
 	void updateRealName() {
 		final String UPDATED_NAME = "Updated Name";
-		userService.updateName(USER1.getNickName(), UPDATED_NAME);
+		userService.updateUserName(USER1.getNickName(), UPDATED_NAME);
 		final User registeredUser = dataStore.getUser(USER1.getNickName());
 		assertNotNull(registeredUser);
 		assertEquals(UPDATED_NAME, registeredUser.getName());
@@ -76,20 +76,30 @@ class TwitterApplicationTests {
 		assertEquals(expected, USER1.getFollows());
 
 		expected = new HashSet<>(Arrays.asList(USER1.getNickName()));
-		Collection<String> followers = userService.getFollowers(USER2.getNickName());
+		final Collection<String> followers = userService.getFollowers(USER2.getNickName());
 		assertEquals(expected, followers);
 	}
 
 	@Test
+	void addFollow_FollowerNotFound() {
+		assertThrows(UserNotFound.class, () -> userService.addFollow("notFound", USER2.getNickName()));
+	}
+
+	@Test
+	void addFollow_FollowedNotFound() {
+		assertThrows(UserNotFound.class, () -> userService.addFollow(USER2.getNickName(), "notFound"));
+	}
+
+	@Test
 	void getAll() {
-		final Collection<User> all = userService.all();
+		final Collection<User> all = userService.getAllUsers();
 		assertNotNull(all);
 		assertEquals(2, all.size());
 	}
 
 	@Test
 	void getOne() {
-		final User one = userService.one(USER1.getNickName());
+		final User one = userService.getUserByNick(USER1.getNickName());
 		assertNotNull(one);
 		assertEquals(USER1, one);
 	}

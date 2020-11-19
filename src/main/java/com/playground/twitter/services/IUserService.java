@@ -11,13 +11,13 @@ import java.util.Set;
 
 public interface IUserService {
 
-    Collection<User> all();
+    Collection<User> getAllUsers();
 
-    User one(@PathVariable String nick);
+    User getUserByNick(@PathVariable String nick);
 
-    User register(User user) throws NickNameExistsError;
+    User registerUser(User user) throws NickNameExistsError;
 
-    User updateName(String nickName, String name) throws UserNotFound;
+    User updateUserName(String nickName, String name) throws UserNotFound;
 
     User addFollow(String nickFollower, String nickFollow) throws UserNotFound;
 
