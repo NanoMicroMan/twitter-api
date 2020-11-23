@@ -3,6 +3,7 @@ package com.playground.twitter;
 import com.playground.twitter.domain.UserService;
 import com.playground.twitter.errors.NickNameExistsError;
 import com.playground.twitter.errors.UserNotFound;
+import com.playground.twitter.models.Post;
 import com.playground.twitter.services.IDataStore;
 import com.playground.twitter.models.User;
 import lombok.SneakyThrows;
@@ -65,6 +66,33 @@ class UserServiceTest {
 	}
 
 	@Test
+	void addPosts() throws UserNotFound {
+		assertEquals(dataStore.getPosts(USER1.getNickName()).size(), 0);
+		userService.addPost(USER1.getNickName(), new Post("Post Test"));
+		assertEquals(dataStore.getPosts(USER1.getNickName()).size(), 1);
+	}
+
+	@Test
+	void addPostUserNotFound() {
+		assertThrows(UserNotFound.class, () -> userService.addPost("Invalid Nick", new Post("Valid Post")));
+	}
+
+	@Test
+	void getPosts() throws UserNotFound {
+		final Post valid_post = new Post("Valid Post");
+		dataStore.addPost(USER1.getNickName(), valid_post);
+		final List<Post> res = userService.getPosts(USER1.getNickName());
+		List<Post> expected = new ArrayList<>(Arrays.asList(valid_post));
+		assertEquals(expected, res);
+	}
+
+	@Test
+	void getPostsValidUserEmpty() throws UserNotFound {
+		final List<Post> res = userService.getPosts(USER1.getNickName());
+		assertEquals(Collections.EMPTY_LIST, res);
+	}
+
+	@Test
 	void getFollowers() throws UserNotFound {
 		dataStore.addFollower(USER1.getNickName(), USER2.getNickName());
 		final Collection<String> res = userService.getFollowers(USER1.getNickName());
@@ -72,11 +100,6 @@ class UserServiceTest {
 		assertEquals(expected, res);
 	}
 
-	@Test
-	void getFollowersValidUserEmpty() throws UserNotFound {
-		final Collection<String> res = userService.getFollowers(USER1.getNickName());
-		assertEquals(Collections.EMPTY_SET, res);
-	}
 
 	@Test
 	void getFollowersUserNotFound() {
@@ -114,7 +137,7 @@ class UserServiceTest {
 
 	@Test
 	void getOne() throws UserNotFound {
-		final User one = userService.getUserByNick(USER1.getNickName());
+		final User one = userService.getUser(USER1.getNickName());
 		assertNotNull(one);
 		assertEquals(USER1, one);
 	}

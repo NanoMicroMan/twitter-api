@@ -2,6 +2,7 @@ package com.playground.twitter.domain;
 
 import com.playground.twitter.errors.NickNameExistsError;
 import com.playground.twitter.errors.UserNotFound;
+import com.playground.twitter.models.Post;
 import com.playground.twitter.models.User;
 import com.playground.twitter.services.IDataStore;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 
 @Service
 @NoArgsConstructor
@@ -18,10 +20,6 @@ public class UserService  {
 
     public Collection<User> getAllUsers() {
         return dataStore.getUsers();
-    }
-
-    public User getUserByNick(final String nick) throws UserNotFound {
-        return getUser(nick);
     }
 
     public User registerUser(final User user) throws NickNameExistsError {
@@ -50,18 +48,29 @@ public class UserService  {
         return getUser(nickFollower);
     }
 
+    public void addPost(String nickName, Post post) throws UserNotFound {
+        verifyUserExists(nickName);
+        dataStore.addPost(nickName, post);
+    }
+
     public Collection<String> getFollowers(final String nickName) throws UserNotFound {
-        if (!dataStore.exists(nickName)) {
-            throw new UserNotFound();
-        }
+        verifyUserExists(nickName);
         return dataStore.getFollowers(nickName);
     }
 
-    private User getUser(final String nickName) throws UserNotFound {
-        final User user = dataStore.getUser(nickName);
-        if (user==null) {
+    public User getUser(final String nickName) throws UserNotFound {
+        verifyUserExists(nickName);
+        return dataStore.getUser(nickName);
+    }
+
+    private void verifyUserExists(String nickName) throws UserNotFound {
+        if (!dataStore.exists(nickName)) {
             throw new UserNotFound();
         }
-        return user;
+    }
+
+    public List<Post> getPosts(String nickName) throws UserNotFound {
+        verifyUserExists(nickName);
+        return dataStore.getPosts(nickName);
     }
 }

@@ -24,7 +24,7 @@ public class UserController {
 
     @GetMapping("/user/{nick}")
     public User one(@PathVariable final String nick) throws UserNotFound {
-        return userService.getUserByNick(nick);
+        return userService.getUser(nick);
     }
     
     @PostMapping("/user")
