@@ -24,7 +24,7 @@ public class TwitterApplication {
 	public static class AppConfig {
 		public static ConfigDB configDB;
 
-		public AppConfig(ConfigDB configDB) {
+		public AppConfig(final ConfigDB configDB) {
 			this.configDB = configDB;
 		}
 	}

@@ -4,7 +4,7 @@ import java.util.HashSet;
 
 public class PersistentMapSet<T> extends PersistentMap<HashSet<T>> {
 
-    protected PersistentMapSet(String name) {
+    protected PersistentMapSet(final String name) {
         super(name);
     }
 @Override

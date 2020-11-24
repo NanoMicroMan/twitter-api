@@ -17,7 +17,7 @@ public class Post implements Serializable, Comparable<Post> {
         setText(text);
     }
 
-    public void setText(String text) {
+    public void setText(final String text) {
         this.text = text;
         date = LocalDateTime.now();
     }

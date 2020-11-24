@@ -30,7 +30,7 @@ public class MapdbDataStore implements IDataStore {
     }
 
     @Override
-    public void addFollower(String nick, final String nickFollower) {
+    public void addFollower(final String nick, final String nickFollower) {
         getFollowersMap().addVal(nick, nickFollower);
     }
 
@@ -60,7 +60,7 @@ public class MapdbDataStore implements IDataStore {
     }
 
     @Override
-    public void addPost(String nickName, final Post post) {
+    public void addPost(final String nickName, final Post post) {
         getPostsMap().addVal(nickName, post);
     }
 

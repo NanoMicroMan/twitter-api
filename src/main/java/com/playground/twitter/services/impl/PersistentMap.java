@@ -23,7 +23,7 @@ public class PersistentMap<T> implements IPersistentMap<T> {
     }
 
     private DB getDB(final String name) {
-        var db = switch (TwitterApplication.AppConfig.configDB.getType()) {
+        final var db = switch (TwitterApplication.AppConfig.configDB.getType()) {
             case HEAP -> DBMaker.heapDB();
             case OFF_HEAP -> DBMaker.memoryDB();
             case FILE -> DBMaker.fileDB(TwitterApplication.AppConfig.configDB.getDir() + name + ".db").fileMmapEnable().cleanerHackEnable();
@@ -51,7 +51,7 @@ public class PersistentMap<T> implements IPersistentMap<T> {
     }
 
     @Override
-    public void addVal(String key, final Object val) {
+    public void addVal(final String key, final Object val) {
         getMap().put(normalizeKey(key), (T) val);
     }
 
