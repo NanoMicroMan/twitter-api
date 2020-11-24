@@ -13,13 +13,17 @@ public class Post implements Serializable, Comparable<Post> {
     private String text;
     private LocalDateTime date;
 
-    public Post(String text) {
+    public Post(final String text) {
+        setText(text);
+    }
+
+    public void setText(String text) {
         this.text = text;
         date = LocalDateTime.now();
     }
 
     @Override
-    public int compareTo(@NotNull Post o) {
+    public int compareTo(@NotNull final Post o) {
         return this.getDate().compareTo(o.getDate());
     }
 }

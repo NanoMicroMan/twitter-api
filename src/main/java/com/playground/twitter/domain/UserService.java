@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -48,12 +49,12 @@ public class UserService  {
         return getUser(nickFollower);
     }
 
-    public void addPost(String nickName, Post post) throws UserNotFound {
+    public void addPost(final String nickName, final Post post) throws UserNotFound {
         verifyUserExists(nickName);
         dataStore.addPost(nickName, post);
     }
 
-    public Collection<String> getFollowers(final String nickName) throws UserNotFound {
+    public HashSet<String> getFollowers(final String nickName) throws UserNotFound {
         verifyUserExists(nickName);
         return dataStore.getFollowers(nickName);
     }
@@ -63,13 +64,13 @@ public class UserService  {
         return dataStore.getUser(nickName);
     }
 
-    private void verifyUserExists(String nickName) throws UserNotFound {
+    private void verifyUserExists(final String nickName) throws UserNotFound {
         if (!dataStore.exists(nickName)) {
             throw new UserNotFound();
         }
     }
 
-    public List<Post> getPosts(String nickName) throws UserNotFound {
+    public HashSet<Post> getPosts(final String nickName) throws UserNotFound {
         verifyUserExists(nickName);
         return dataStore.getPosts(nickName);
     }

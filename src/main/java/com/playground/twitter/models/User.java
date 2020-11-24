@@ -18,7 +18,7 @@ public class User implements Serializable, Comparable<User> {
     String name;
     private final HashSet<String> follows = new HashSet<>();
 
-    public void setNickName(String nickName) {
+    public void setNickName(final String nickName) {
         this.nickName = nickName==null? null: nickName.trim();
     }
 
@@ -27,7 +27,7 @@ public class User implements Serializable, Comparable<User> {
     }
 
     @Override
-    public int compareTo(@NotNull User o) {
+    public int compareTo(@NotNull final User o) {
         int res = this.getNickName().compareTo(o.getNickName());
         if (res==0) res = this.getName().compareTo(o.getName());
         if (res==0) res = this.getFollows().size() - o.getFollows().size();

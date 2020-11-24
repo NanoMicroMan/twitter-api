@@ -40,9 +40,8 @@ class UserServiceTest {
 		dataStore.addUser(USER2);
 	}
 
-	@SneakyThrows
 	@Test
-	void registerUser() {
+	void registerUser() throws NickNameExistsError {
 		final User newUser = new User("Test", "Test User");
 		userService.registerUser(newUser);
 		final User registeredUser = dataStore.getUser(newUser.getNickName());
@@ -81,25 +80,24 @@ class UserServiceTest {
 	void getPosts() throws UserNotFound {
 		final Post valid_post = new Post("Valid Post");
 		dataStore.addPost(USER1.getNickName(), valid_post);
-		final List<Post> res = userService.getPosts(USER1.getNickName());
-		List<Post> expected = new ArrayList<>(Arrays.asList(valid_post));
+		final HashSet<Post> res = userService.getPosts(USER1.getNickName());
+		final HashSet<Post> expected = new HashSet<>(Arrays.asList(valid_post));
 		assertEquals(expected, res);
 	}
 
 	@Test
 	void getPostsValidUserEmpty() throws UserNotFound {
-		final List<Post> res = userService.getPosts(USER1.getNickName());
-		assertEquals(Collections.EMPTY_LIST, res);
+		final HashSet<Post> res = userService.getPosts(USER1.getNickName());
+		assertEquals(Collections.EMPTY_SET, res);
 	}
 
 	@Test
 	void getFollowers() throws UserNotFound {
 		dataStore.addFollower(USER1.getNickName(), USER2.getNickName());
-		final Collection<String> res = userService.getFollowers(USER1.getNickName());
-		Set<String> expected = new HashSet<>(Arrays.asList(USER2.getNickName().toLowerCase()));
+		final HashSet<String> res = userService.getFollowers(USER1.getNickName());
+		final HashSet<String> expected = new HashSet<>(Arrays.asList(USER2.getNickName()));
 		assertEquals(expected, res);
 	}
-
 
 	@Test
 	void getFollowersUserNotFound() {

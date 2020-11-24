@@ -5,7 +5,6 @@ import com.playground.twitter.models.User;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 public interface IDataStore {
     User getUser(String nick);
@@ -16,15 +15,15 @@ public interface IDataStore {
 
     Collection<User> getUsers();
 
-    void clearAll();
-
     boolean exists(String nickName);
 
     HashSet<String> getFollowers(String nickName);
 
     void updateUser(User updUser);
 
-    List<Post> getPosts(String nickName);
+    HashSet<Post> getPosts(String nickName);
 
     void addPost(String nickName, Post post);
+
+    void clearAll();
 }

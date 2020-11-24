@@ -1,75 +1,37 @@
 package com.playground.twitter.services.impl;
 
 import com.playground.twitter.models.Post;
-import com.playground.twitter.services.IDataStore;
 import com.playground.twitter.models.User;
+import com.playground.twitter.services.IDataStore;
+import com.playground.twitter.services.IPersistentMap;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
-import org.mapdb.Serializer;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Collection;
+import java.util.HashSet;
 
 @Service
 @NoArgsConstructor
+@Data
 public class MapdbDataStore implements IDataStore {
+    private IPersistentMap<User> userMap = new PersistentMap<>("users");
+    private IPersistentMap<HashSet<String>> followersMap = new PersistentMapSet<>("followers");
+    private IPersistentMap<HashSet<Post>> postsMap = new PersistentMapSet<>("posts");
 
-    enum DBtype {
-        Heap,
-        OffHeap,
-        File
-    }
-    private DB db;
-
-    @Value("${fileDB:}")
-    private String fileDB;
-
-    private ConcurrentMap<String, User> userMap;
-    private ConcurrentMap<String, HashSet<String>> followersMap;
-    private ConcurrentMap<String, List<Post>> postsMap;
-
-    private void initDB() {
-        db = getDB();
-
-        userMap = getMap("users");
-        followersMap = getMap("followers");
-        postsMap = getMap("posts");
-    }
-
-    private ConcurrentMap getMap(String name) {
-        return getDB().hashMap(name)
-                .keySerializer(Serializer.STRING)
-                .valueSerializer(Serializer.JAVA)
-                .createOrOpen();
-    }
-
-    private DB getDB() {
-        return fileDB.isEmpty() ?
-                DBMaker.memoryDB().closeOnJvmShutdown().make() :
-                DBMaker.fileDB(fileDB)
-                        .fileMmapEnable()
-                        .cleanerHackEnable()
-                        .closeOnJvmShutdown().make();
-    }
     @Override
     public User getUser(final String nickName) {
-        return getUserMap().get(normalizeKey(nickName));
+        return getUserMap().getVal(nickName);
     }
 
     @Override
     public void addUser(final User user) {
-        getUserMap().put(normalizeKey(user.getNickName()), user);
+        getUserMap().addVal(user.getNickName(), user);
     }
 
     @Override
     public void addFollower(String nick, final String nickFollower) {
-        nick = normalizeKey(nick);
-        HashSet<String> followers = getFollowersMap().getOrDefault(nick, new HashSet<>());
-        followers.add(normalizeKey(nickFollower));
-        getFollowersMap().put(nick, followers);
+        getFollowersMap().addVal(nick, nickFollower);
     }
 
     @Override
@@ -78,56 +40,35 @@ public class MapdbDataStore implements IDataStore {
     }
 
     @Override
-    public void clearAll() {
-        getUserMap().clear();
-        getFollowersMap().clear();
-        getPostsMap().clear();
-    }
-
-    @Override
     public boolean exists(final String nickName) {
-        return getUserMap().containsKey(normalizeKey(nickName));
+        return getUserMap().exists(nickName);
     }
 
     @Override
     public HashSet<String> getFollowers(final String nickName) {
-        return getFollowersMap().getOrDefault(normalizeKey(nickName), new HashSet<>());
+        return getFollowersMap().getVal(nickName);
     }
 
     @Override
-    public void updateUser(User updUser) {
-        getUserMap().replace(normalizeKey(updUser.getNickName()), updUser);
+    public void updateUser(final User updUser) {
+        getUserMap().update(updUser.getNickName(), updUser);
     }
 
     @Override
-    public List<Post> getPosts(String nickName) {
-        return getPostsMap().getOrDefault(normalizeKey(nickName), new ArrayList<>());
+    public HashSet<Post> getPosts(final String nickName) {
+        return getPostsMap().getVal(nickName);
     }
 
     @Override
-    public void addPost(String nickName, Post post) {
-        nickName = normalizeKey(nickName);
-        List<Post> posts = getPosts(nickName);
-        posts.add(post);
-        getPostsMap().put(nickName, posts);
+    public void addPost(String nickName, final Post post) {
+        getPostsMap().addVal(nickName, post);
     }
 
-    private String normalizeKey(final String nickName) {
-        return nickName==null? "": nickName.toLowerCase().trim();
+    @Override
+    public void clearAll() {
+        userMap.clear();
+        followersMap.clear();
+        postsMap.clear();
     }
 
-    public ConcurrentMap<String, User> getUserMap() {
-        if (db==null) initDB();
-        return userMap;
-    }
-
-    public ConcurrentMap<String, HashSet<String>> getFollowersMap() {
-        if (db==null) initDB();
-        return followersMap;
-    }
-
-    public ConcurrentMap<String, List<Post>> getPostsMap() {
-        if (db==null) initDB();
-        return postsMap;
-    }
 }

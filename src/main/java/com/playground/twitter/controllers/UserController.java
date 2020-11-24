@@ -3,6 +3,7 @@ package com.playground.twitter.controllers;
 import com.playground.twitter.domain.UserService;
 import com.playground.twitter.errors.NickNameExistsError;
 import com.playground.twitter.errors.UserNotFound;
+import com.playground.twitter.models.Post;
 import com.playground.twitter.models.User;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,10 +46,21 @@ public class UserController {
         return userService.addFollow(nick, follow);
     }
 
-
     @GetMapping("/user/{nick}/followers")
     @ResponseStatus(code = HttpStatus.ACCEPTED)
     public Collection<String> followers(@PathVariable final String nick) throws UserNotFound {
         return userService.getFollowers(nick);
+    }
+
+    @GetMapping("/user/{nick}/posts")
+    @ResponseStatus(code = HttpStatus.OK)
+    public Collection<Post> posts(@PathVariable final String nick) throws UserNotFound {
+        return userService.getPosts(nick);
+    }
+
+    @PostMapping("/user/{nick}/post")
+    @ResponseStatus(code = HttpStatus.CREATED)
+    public void addPost(@PathVariable final String nick, @RequestBody final Post post) throws UserNotFound {
+        userService.addPost(nick, post);
     }
 }
